@@ -1,0 +1,57 @@
+name: Code Coverage Report
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies (root)
+        run: npm install
+      - name: Install frontend dependencies
+        run: npm install --prefix app/frontend
+      - name: Install backend dependencies
+        run: npm install --prefix app/backend
+      - name: Install UI test dependencies
+        run: npm install --prefix tests/ui
+      - name: Install API test dependencies
+        run: npm install --prefix tests/api
+
+      - name: Run Backend Tests with Coverage
+        run: |
+          # Assuming Jest is configured to collect coverage
+          npm test -- --coverage
+        working-directory: tests/api
+        env:
+          PORT: 5000
+          MONGO_URI: mongodb://localhost:27017/qa_challenge_test
+          JWT_SECRET: supersecretjwtkey
+
+      - name: Run Frontend Tests with Coverage
+        run: |
+          # Assuming Jest is configured to collect coverage
+          npm test -- --coverage
+        working-directory: app/frontend # Assuming frontend tests are here
+        env:
+          NODE_ENV: test
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: |
+            tests/api/coverage/
+            app/frontend/coverage/ # Adjust if frontend coverage is in a different path
+          retention-days: 5

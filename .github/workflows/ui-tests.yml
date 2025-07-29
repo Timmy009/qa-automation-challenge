@@ -1,0 +1,62 @@
+name: UI Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies (root)
+        run: npm install
+      - name: Install frontend dependencies
+        run: npm install --prefix app/frontend
+      - name: Install backend dependencies
+        run: npm install --prefix app/backend
+      - name: Install UI test dependencies
+        run: npm install --prefix tests/ui
+      - name: Start Backend
+        run: npm run start:backend & # Run backend in background
+        working-directory: app/backend
+        env:
+          PORT: 5000
+          MONGO_URI: mongodb://localhost:27017/qa_challenge_test # Use a test database
+          JWT_SECRET: supersecretjwtkey
+      - name: Start Frontend
+        run: npm run dev & # Run frontend in background
+        working-directory: app/frontend
+        env:
+          NEXT_PUBLIC_BACKEND_API_URL: http://localhost:5000/api
+      - name: Wait for servers to be ready
+        run: |
+          echo "Waiting for backend to be ready on port 5000..."
+          while ! nc -z localhost 5000; do
+            sleep 1
+          done
+          echo "Backend is ready."
+          echo "Waiting for frontend to be ready on port 3000..."
+          while ! nc -z localhost 3000; do
+            sleep 1
+          done
+          echo "Frontend is ready."
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: tests/ui
+          start: npm run cypress:run
+          wait-on: 'http://localhost:3000'
+          browser: chrome
+          headless: true
+        env:
+          CYPRESS_BASE_URL: http://localhost:3000

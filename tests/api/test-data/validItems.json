@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Buy groceries",
+    "description": "Milk, eggs, bread, cheese"
+  },
+  {
+    "name": "Walk the dog",
+    "description": "Take Fido to the park"
+  },
+  {
+    "name": "Finish report",
+    "description": "Complete Q3 financial report"
+  },
+  {
+    "name": "Laptop",
+    "description": "High-performance laptop for gaming and work.",
+    "quantity": 10,
+    "price": 1200.0
+  },
+  {
+    "name": "Mouse",
+    "description": "Ergonomic wireless mouse.",
+    "quantity": 50,
+    "price": 25.5
+  },
+  {
+    "name": "Keyboard",
+    "description": "Mechanical keyboard with RGB lighting.",
+    "quantity": 30,
+    "price": 75.0
+  },
+  {
+    "name": "USB-C Hub",
+    "description": "Multi-port USB-C hub for modern laptops.",
+    "quantity": 30,
+    "price": 45.99
+  },
+  {
+    "name": "External SSD 1TB",
+    "description": "Portable 1TB SSD for fast data transfer.",
+    "quantity": 15,
+    "price": 150.0
+  },
+  {
+    "name": "Monitor",
+    "description": "27-inch 4K UHD monitor.",
+    "quantity": 15,
+    "price": 350.0
+  },
+  {
+    "name": "Webcam",
+    "description": "Full HD webcam for video conferencing.",
+    "quantity": 40,
+    "price": 49.99
+  }
+]

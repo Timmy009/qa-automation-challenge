@@ -1,0 +1,90 @@
+# OWASP ZAP Automation Framework Plan
+# This is a placeholder for a ZAP scan configuration.
+# You would typically define contexts, authentication, and scan rules here.
+
+# Example (simplified) plan:
+env:
+  contexts:
+    - name: "Default Context"
+      urls:
+        - "http://localhost:3000" # Your frontend URL
+        - "http://localhost:5000" # Your backend API URL
+      authentication:
+        method: "formBasedAuthentication"
+        parameters:
+          loginUrl: "http://localhost:5000/api/users/login"
+          loginRequestData: '{"username":"%username%","password":"%password%"}'
+          loginRequestHeaders: 'Content-Type: application/json'
+          loggedInRegex: '.*"token":".*".*' # Regex to identify a successful login response
+          loggedOutRegex: '.*"message":"Invalid credentials".*' # Regex to identify a logged out state
+        script:
+          name: "AuthScript" # Name of the script if you use a custom authentication script
+          type: "authentication"
+          engine: "ECMAScript"
+          parameters:
+            username: "zapuser" # User for ZAP to authenticate with
+            password: "zappassword"
+      users:
+        - name: "Authenticated User"
+          credentials:
+            username: "zapuser"
+            password: "zappassword"
+      sessionManagement:
+        method: cookieBasedSessionManagement
+      includePaths:
+        - "http://localhost:3000.*"
+        - "http://localhost:5000/api.*"
+      excludePaths:
+        - "http://localhost:5000/api/users/register" # Exclude registration from active scan if not needed
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    progressToStdout: true
+
+jobs:
+  - name: "passiveScan"
+    type: "passiveScan"
+    parameters:
+      maxAlerts: 0 # Fail if any passive alerts are found (adjust as needed)
+      maxErrors: 0
+    # Passive scan runs automatically as ZAP spiders and accesses URLs
+
+  - name: "spider"
+    type: "spider"
+    parameters:
+      context: "Default Context"
+      url: "http://localhost:3000" # Start spidering from the frontend
+      maxDepth: 5
+      maxChildren: 50
+      recurse: true
+      # Add more parameters as needed, e.g., postForms, parseComments, etc.
+
+  - name: "spiderAjax"
+    type: "spiderAjax"
+    parameters:
+      context: "Default Context"
+      url: "http://localhost:3000"
+      maxCrawlStates: 100
+      maxDuration: 5 # minutes
+      # Add more parameters as needed
+
+  - name: "activeScan"
+    type: "activeScan"
+    parameters:
+      context: "Default Context"
+      policy: "Default Policy" # Use ZAP's default active scan policy
+      maxRuleDurationInMins: 3 # Max time for a single rule
+      maxScanDurationInMins: 20 # Max total scan time
+      failAction: "FAIL_ON_ANY_ALERT" # Fail the job if any active alerts are found
+      # Add more parameters like attackStrength, alertThreshold, etc.
+    # Target the API endpoints specifically for active scanning
+    urls:
+      - "http://localhost:5000/api/items"
+      - "http://localhost:5000/api/users/login"
+
+  - name: "report"
+    type: "htmlReport"
+    parameters:
+      template: "traditional-html" # or 'json', 'md', etc.
+      reportDir: "reports/zap" # Directory to save reports
+      reportFileName: "zap-report.html"

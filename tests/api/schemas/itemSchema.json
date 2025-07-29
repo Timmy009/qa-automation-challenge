@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "properties": {
+    "_id": {
+      "type": "string"
+    },
+    "user": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 100
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "price": {
+      "type": "number",
+      "minimum": 0.01
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "__v": {
+      "type": "integer"
+    }
+  },
+  "required": ["_id", "user", "name", "description", "quantity", "price", "date", "__v"],
+  "additionalProperties": false
+}
